@@ -1,0 +1,11 @@
+POST http://localhost:3000/users HTTP/1.1
+
+{
+  "firstName": "Test",
+  "lastName": "Testovicn",
+  "age": 15,
+  "address": {
+    "street": "street",
+    "house": 21
+  }
+}
