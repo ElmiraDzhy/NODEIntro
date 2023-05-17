@@ -1,24 +1,19 @@
-const http = require( "http" );
+const http = require("http");
+const fs = require("fs/promises");
 
-const server = http.createServer( requestListener );
+const server = http.createServer(requestListener);
+server.listen(3000);
 
-server.listen( 3000 );
-function requestListener( req, res ) {
-  
-
-  res.end('hello from node')
+function requestListener(req, res) {
+	if (req.url === "/home") {
+		fs.readFile("./views/index.html", "utf-8").then((data) => {
+			res.end(data);
+		});
+	}
+	if (req.url === "/styles.css") {
+		fs.readFile("./views/styles.css").then((data) => {
+			res.end(data);
+		});
+	}
 }
-
-const myserver = http.createServer( requestListener );
-myserver.listen( 3001 );
-
-let count = 0;
-function requestListener( req, res ) {
-  count++;
-
-  res.end(`${count}`)
-}
-
-// console.log( server );
-
 
