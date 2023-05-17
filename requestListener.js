@@ -1,13 +1,14 @@
 const fs = require("fs/promises");
 
 module.exports = function requestListener(req, res) {
-	if (req.method === "GET") {
-		if (req.url === "/home") {
+	const { method, url } = req;
+	if (method === "GET") {
+		if (url === "/home") {
 			fs.readFile("./views/index.html", "utf-8").then((data) => {
 				res.statusCode = 200;
 				res.end(data);
 			});
-		} else if (req.url === "/styles.css") {
+		} else if (url === "/styles.css") {
 			fs.readFile("./views/styles.css").then((data) => {
 				res.statusCode = 200;
 				res.end(data);
@@ -18,8 +19,8 @@ module.exports = function requestListener(req, res) {
 				res.end(data);
 			});
 		}
-	} else if (req.method === "POST") {
-		if (req.url === "/users") {
+	} else if (method === "POST") {
+		if (url === "/users") {
 			// get data is an async format via ReadbleStream
 			// when data is coming  - event "data" of req
 			// when all data is came - event "end" of req
@@ -47,7 +48,7 @@ module.exports = function requestListener(req, res) {
 					res.end("oops");
 				}
 			});
-		} else if (req.url === "/login") {
+		} else if (url === "/login") {
 			let stringFromChunk = "";
 
 			req.on("data", (chunk) => {
@@ -55,8 +56,9 @@ module.exports = function requestListener(req, res) {
 			});
 
 			req.on("end", async () => {
-				const userData = JSON.parse(stringFromChunk);
 				try {
+					const userData = JSON.parse(stringFromChunk);
+
 					const text = await readUserData();
 					const saveData = JSON.parse(text);
 
@@ -70,7 +72,7 @@ module.exports = function requestListener(req, res) {
 					}
 				} catch (error) {
 					res.statusCode = 400;
-					res.end("erroe");
+					res.end("error");
 				}
 			});
 		}
@@ -78,7 +80,11 @@ module.exports = function requestListener(req, res) {
 };
 
 async function writeUserToFile(userData) {
-	return fs.appendFile("./data/userData.txt", JSON.stringify(userData), "utf-8");
+	if (userData instanceof Array) {
+		userData.forEach((d) => fs.appendFile("./data/userData.txt", JSON.stringify(d) + "\n", "utf-8"));
+	} else {
+		return fs.appendFile("./data/userData.txt", JSON.stringify(userData) + "\n", "utf-8");
+	}
 }
 async function readUserData() {
 	return fs.readFile("./data/login.txt", "utf-8");
