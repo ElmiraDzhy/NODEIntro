@@ -1,0 +1,6 @@
+POST http://localhost:3000/login HTTP/1.1
+
+{
+  "email": "email.com",
+  "password": "1234"
+}

@@ -23,7 +23,7 @@ function requestListener(req, res) {
 			});
 		}
 	} else if (req.method === "POST") {
-		if ((req.url = "/users")) {
+		if (req.url === "/users") {
 			// get data is an async format via ReadbleStream
 			// when data is coming  - event "data" of req
 			// when all data is came - event "end" of req
@@ -36,9 +36,9 @@ function requestListener(req, res) {
 			//emmiter.on()
 			//emmiter.emit()
 
-			req.on("data", (chunk) => {
-				stringFromChunk += chunk;
-			});
+			// req.on("data", (chunk) => {
+			// 	stringFromChunk += chunk;
+			// });
 
 			req.on("end", async () => {
 				const userData = JSON.parse(stringFromChunk);
@@ -51,11 +51,41 @@ function requestListener(req, res) {
 					res.end("oops");
 				}
 			});
+		} else if (req.url === "/login") {
+			let stringFromChunk = "";
+
+			req.on("data", (chunk) => {
+				stringFromChunk += chunk;
+			});
+
+			req.on("end", async () => {
+				const userData = JSON.parse(stringFromChunk);
+				try {
+					const text = await readUserData();
+					const saveData = JSON.parse(text);
+
+					if (userData.email === saveData.email && userData.password === saveData.password) {
+						console.log("message");
+						res.statusCode = 200;
+						res.end("login successfull");
+					} else {
+						res.statusCode = 401;
+						res.end("data is invalid");
+					}
+				} catch (error) {
+					res.statusCode = 400;
+					res.end("erroe");
+				}
+			});
 		}
 	}
 }
 
 async function writeUserToFile(userData) {
 	return fs.appendFile("./data/userData.txt", JSON.stringify(userData), "utf-8");
+}
+
+async function readUserData() {
+	return fs.readFile("./data/login.txt", "utf-8");
 }
 
